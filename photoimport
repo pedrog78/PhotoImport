@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#*****************************************************************#
+# Script to take a folder of photographs and sort it into folders #
+# by date                                                         #
+#                                                                 #
+# Requires the exif package to be installed                       #
+#*****************************************************************#
+
+#check for existance of exif (Ubuntu)
+if [ ! -x /usr/bin/exif ]
+then
+	echo "Exif package does not exist on system.  Please install and try again"
+	exit
+fi    
+
+#correct format for running tool is photoimport <source directory> <destination parent>
+if [ $# -ne 2 ]
+then
+	echo "Incorrect number of arguments..  There should be exactly 2 - a source and destination path. Exiting"
+	exit
+fi
+
+#todo - sanity check directories
+
+
+#set up variables representing the source and destination
+sourceDir=$1;
+destDir=$2;
+
+for i in $(ls "$sourceDir")
+do
+		dirname=$(/usr/bin/exif -mi $sourceDir/$i  | grep "0x9003" | awk '{print $2}' | sed s/://g)
+
+		echo $dirname
+		
+		if [ -d $destDir/$dirname ]
+		then
+			echo "cp $sourceDir/$i $destdir/$dirname"
+			cp $sourceDir/$i $destDir/$dirname
+		else
+			echo "sourcdir=$sourceDir and destdir=$destDir"
+
+			echo "mkdir $destDir/$dirname && cp $sourceDir/$i $destDir/$dirname"
+			mkdir $destDir/$dirname && cp $sourceDir/$i $destDir/$dirname
+		fi
+
+done
